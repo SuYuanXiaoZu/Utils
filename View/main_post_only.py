@@ -11,14 +11,12 @@ import string
 
 import struct
 import csv
-Filter_command=["data","http.unknown_header","http.file_data"]
-none=" "
+Filter_command=["data","http.unknown_header","http.file_data","HTTP/1.1 200 OK\\r\\n","HTTP/1.1 404 Not Found\\r\\n"]
+
 def hex_a2b(string):#十六进制转ASCII接口
     str_out=string.replace(":","")
 
-    #print(str_out)
-    if len(str_out)%2!=0:
-        str_out=str_out[:len(str_out)-1]
+    print(str_out)
 
     text = binascii.a2b_hex(str_out)
 
@@ -33,10 +31,11 @@ def unicode(string):#UNICODE转ASCII接口
 
 if __name__ == '__main__':
     #print_hi('PyCharm')
-    with open('/Users/krz/Downloads/99.999.9.23/TwoHop.json', 'r') as FJ:
-        with open("/Users/krz/Downloads/99.999.9.23/test2.csv", "w", encoding="utf-8") as fw:
+    host = "99.999.9.35"
+    with open(f'{host}/OneHop.json', 'r') as FJ:
+        with open(f"{host}/testone.csv", "w", encoding="utf-8") as fw:
             writer = csv.writer(fw)
-            writer.writerow([f'TIME', 'HTTP','TCP_DECODE','HTTP_DECODE'])
+            writer.writerow(['HOST', 'TIME', 'HTTP', 'POST'])
             frame = json.load(FJ)
             # 读取json文件内容
             for data in frame:  #
@@ -71,45 +70,23 @@ if __name__ == '__main__':
                             #print(tcp_flags_str)
 
 
-
                     http=layers.get("http")
-                    if(http):
+                    if http:
                         content=list(http.keys())
-                        HTTP_chunked_response=http.get("HTTP chunked response")
-                        #print(HTTP_chunked_response)
-
                         if content[0] not in Filter_command:
-                            if(frame_time):
-                                content_write = [frame_time[:21], content[0]]
-                                if (tcp_payload):
-
-                                    content_write.append(hex_a2b(tcp_payload))
-                                else:
-                                    content_write.append(none)
-
-                                if(HTTP_chunked_response):
-
-                                    for Data_chunk in HTTP_chunked_response:
-                                        #print(Data_chunk)
-                                        if(str("Data")in Data_chunk ):
-                                            #print(Data_chunk)
-                                            http_chunk_data=HTTP_chunked_response.get(Data_chunk)
-                                            http_chunk_data=http_chunk_data.get("http.chunk_data")
-                                            if(http_chunk_data):
-                                                content_write.append(hex_a2b(http_chunk_data))
-
-
-
-
-
-
-                                writer.writerow(content_write)
-
+                            if frame_time and content[0].startswith("POST"):
+                                result = ["", frame_time[:21],content[0], ""]
+                                host = http.get("http.host")
+                                post_data = layers.get("urlencoded-form")
+                                if host:
+                                    result[0] = host
+                                if post_data:
+                                    result[-1] = str([key[12:] for key in post_data])
+                                # if host == "10.0.0.5":
+                                    writer.writerow(result)
 
                                 #print(frame_time[:21],content[0])
-
-
-
+                                pass
 
 
 
