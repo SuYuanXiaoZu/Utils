@@ -16,3 +16,5 @@
     python merge.py
 ```
 因为切片是2g，所以估计4g内存就可以运行。运行时间本机测试20min左右即可全部运行完毕。
+
+已切好的数据链接 https://cloud.tsinghua.edu.cn/d/56748a9b89a849d4920d/
