@@ -7,7 +7,14 @@ import os
 import sys
 
 Filter_command = ["data", "http.unknown_header", "http.file_data"]
-none = " "
+
+hosts = ["99.999.9.3", "99.999.9.5", "99.999.9.7", "99.999.9.10", "99.999.9.11", "99.999.9.12", "99.999.9.13",
+         "99.999.9.14", "99.999.9.16", "99.999.9.17", "99.999.9.18", "99.999.9.19", "99.999.9.20", "99.999.9.21",
+         "99.999.9.22", "99.999.9.23", "99.999.9.25", "99.999.9.26", "99.999.9.27", "99.999.9.28", "99.999.9.29",
+         "99.999.9.30", "99.999.9.31", "99.999.9.32", "99.999.9.33", "99.999.9.34", "99.999.9.35", "99.999.9.36",
+         "99.999.9.37"]
+last_time_dict = {}
+first_time_dict = {}
 
 
 def hex_a2b(string):  # 十六进制转ASCII接口
@@ -22,21 +29,14 @@ def hex_a2b(string):  # 十六进制转ASCII接口
     return text
 
 
-def unicode(string):  # UNICODE转ASCII接口
-    str_out = string[0].decode('unicode_escape')  # .encode("EUC_KR")
-    print(str_out)
+analysis_dir = '../../Analysis/'
 
 
-if __name__ == '__main__':
-    attack_ip = ""
-    if len(sys.argv) == 2:
-        attack_ip = sys.argv[1]
-    else:
-        print("Usage: python main.py attack_ip. Example: python main.py 99.999.9.35")
-    res_dir = '../../Analysis/' + attack_ip
+def interpret(attack_ip):
+    res_dir = analysis_dir + attack_ip
     if not os.path.isdir(res_dir):
         os.mkdir(res_dir)
-    time_dict = {}
+
     with open(f'../Slice/{attack_ip}/OneHop.json', 'r') as FJ:
         with open(res_dir + f"/basic.csv", "w", encoding="utf-8") as fw:
             writer = csv.writer(fw)
@@ -51,18 +51,10 @@ if __name__ == '__main__':
                     frame = layers.get("frame")
                     if frame:
                         frame_time = frame.get("frame.time")
-                    eth = layers.get("eth")
-                    if eth:
-                        eth_dst = eth.get("eth.dst")
-
-                    ip = layers.get("ip")
 
                     tcp = layers.get("tcp")
                     if tcp:
                         tcp_payload = tcp.get("tcp.payload")
-                        tcp_flags_tree = tcp.get("tcp.flags_tree")
-                        if tcp_flags_tree:
-                            tcp_flags_str = tcp_flags_tree.get("tcp.flags.str")
 
                     http = layers.get("http")
                     if http:
@@ -74,15 +66,13 @@ if __name__ == '__main__':
                                 date = http.get("http.date")
                                 if date:
                                     content_write[-1] = datetime.strptime(date, "%a, %d %b %Y %H:%M:%S GMT")
-                                if content[0].startswith("POST"):
-                                    host = http.get("http.host")
-                                    post_data = layers.get("urlencoded-form")
-                                    if host:
-                                        content_write[2] = host
-                                        if date and not (host in time_dict.keys() and date <= time_dict[host]):
-                                            time_dict[host] = date
-                                    if post_data:
-                                        content_write[3] = str([key[12:] for key in post_data])
+
+                                host = http.get("http.host")
+                                post_data = layers.get("urlencoded-form")
+                                if host:
+                                    content_write[2] = host
+                                if post_data:
+                                    content_write[3] = str([key[12:] for key in post_data])
 
                                 if tcp_payload:
                                     content_write[4] = hex_a2b(tcp_payload)
@@ -97,8 +87,14 @@ if __name__ == '__main__':
                                             if http_chunk_data:
                                                 content_write[5] = hex_a2b(http_chunk_data)
                                 writer.writerow(content_write)
-    with open(res_dir + f"/latest_dates.csv", "w", encoding="utf-8") as fw:
-        writer = csv.writer(fw)
-        writer.writerow([f'TARGET IP', 'LATEST DATE'])
-        for host in time_dict:
-            writer.writerow([host, time_dict[host]])
+
+
+if __name__ == '__main__':
+    if not os.path.isdir(analysis_dir):
+        os.mkdir(analysis_dir)
+    if len(sys.argv) == 2:
+        interpret(sys.argv[1])
+    else:
+        for ip in hosts:
+            interpret(ip)
+
