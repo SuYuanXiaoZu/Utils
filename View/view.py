@@ -1,6 +1,10 @@
 from datetime import datetime
 import json
 import binascii
+#import scapy.all as scapy
+
+import base64
+import string
 
 import csv
 import os
