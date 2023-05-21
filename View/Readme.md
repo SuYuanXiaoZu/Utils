@@ -6,3 +6,5 @@
 从binary字符串中恢复图片。
 ## view
 提取时间戳、IP、POST参数、tcp payload 和http payload等字段并解码至csv中以便查看。
+## unzipgzip
+解压gzip压缩的HTTP响应

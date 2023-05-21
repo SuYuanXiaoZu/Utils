@@ -1,10 +1,6 @@
 from datetime import datetime
 import json
 import binascii
-#import scapy.all as scapy
-
-import base64
-import string
 
 import csv
 import os
@@ -17,8 +13,6 @@ hosts = ["99.999.9.3", "99.999.9.5", "99.999.9.7", "99.999.9.10", "99.999.9.11",
          "99.999.9.22", "99.999.9.23", "99.999.9.25", "99.999.9.26", "99.999.9.27", "99.999.9.28", "99.999.9.29",
          "99.999.9.30", "99.999.9.31", "99.999.9.32", "99.999.9.33", "99.999.9.34", "99.999.9.35", "99.999.9.36",
          "99.999.9.37"]
-last_time_dict = {}
-first_time_dict = {}
 
 
 def hex_a2b(string):  # 十六进制转ASCII接口
@@ -101,4 +95,3 @@ if __name__ == '__main__':
     else:
         for ip in hosts:
             interpret(ip)
-
