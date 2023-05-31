@@ -12,3 +12,6 @@
 
 截取自定义时间段[a, b]中所有不含http、仅含有tcp的包并生成相应的csv文件。适用于第六题定位了攻击命令后分析对应执行反弹shell命令。
 
+## decodeFlagOfTask4
+
+解析第四题flag的代码。
